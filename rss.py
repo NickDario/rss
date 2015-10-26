@@ -12,17 +12,17 @@ feeds = {
 }
 
 RSS_LIST_DIR = '/var/rss_list'
+FORMAT  = '%a, %d %b %Y %H:%M:%S %Z'
 
-
-def getLastestDate(feedname):
+def getLatestDate(feedname):
 	f = os.listdir(RSS_LIST_DIR)
-	if(len(f) == 0): return False
+	if(len(f) == 0): return None
 	latest = None
 	for name in f:
 		aName = name.split('.')
 		if(len(aName) != 2): continue
 		if(aName[0] != feedname): continue
-		date = datetime.strptime(aName[0], '%Y-%m-%d_%H-%M-%S')
+		date = datetime.strptime(aName[1], '%Y-%m-%d_%H-%M-%S')
 		if(latest == None or date > latest):
 			latest = date
 	return latest
@@ -37,15 +37,15 @@ def writeStory(feedname, item):
 for source in feeds:
 	last = getLatestDate(source)
 	stories = feedparser.parse(feeds[source])
-	new = True
-	i = 0
-	while new:
-		date = datetime.strptime(stories['items'][i]['updated'])
-		if date > last:
-			writeStore(source, stories['items'][i])
+	for i in range(0,len(stories)):
+		date = datetime.strptime(stories['items'][i]['updated'], '%a, %d %b %Y %H:%M:%S %Z')
+		if last == None or date > last:
+			writeStory(source, stories['items'][i])
 			i += 1
 		else:
-			new = False
+			break
+
+
 
 
 
