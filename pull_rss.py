@@ -7,6 +7,9 @@ from rss_config import RSS_LIST_DIR, rss_feeds
 
 FORMAT  = '%a, %d %b %Y %H:%M:%S %Z'
 
+# 
+# Returns datetime of last of a specific rss feed
+# 
 def getLatestDate(feedname):
 	f = os.listdir(RSS_LIST_DIR)
 	if(len(f) == 0): return None
@@ -20,6 +23,9 @@ def getLatestDate(feedname):
 			latest = date
 	return latest
 
+# 
+# Writes an rss type/title/date item
+# 
 def writeStory(feedname, item):
 	sDate = date.strftime('%Y-%m-%d_%H-%M-%S')
 	filename = feedname + '.' + sDate	
@@ -27,6 +33,10 @@ def writeStory(feedname, item):
 	storyfile.write(item['title'])
 	storyfile.close()
 
+# 
+# Retrieves the rss feeds from the list of feeds and
+# records any new ones
+# 
 def pullStories():
 	for source in rss_feeds:
 		last = getLatestDate(source)

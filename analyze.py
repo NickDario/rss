@@ -1,48 +1,69 @@
-from nltk import word_tokenize
-from nltk import pos_tag
+from spacy.en import English, LOCAL_DATA_DIR
+from rss_config import positive_words, negative_words
 import os
-import sys
+STRING = __import__('string')
 
-sys.path.append('/home/nick/repos/rss')
+data_dir = os.environ.get('SPACY_DATA', LOCAL_DATA_DIR)
+parse = English(data_dir=data_dir)
 
-import rss_config
 
-negative = open(SENTIMATE_DIR + '/negative-words.txt')
-negative_set = [x.strip('\n') for x in negative.readlines()]
 
-positive = open(SENTIMATE_DIR + '/positive-words.txt')
-positive_set = [x.strip('\n') for x in positive.readlines()]
+class Analyze():
 
-def analyzeBase(word):
-	if word in positive_set:
-		print('+' + word)
-		return 10
-	if word in negative_set:
-		print('-' + word)
-		return -10
-	return 0
+	def __init__(self):
+		data_dir = os.environ.get('SPACY_DATA', LOCAL_DATA_DIR)
+		parse = English(data_dir=data_dir)
 
-def analyzeTitle(title):
-	tags = pos_tag(word_tokenize(title))
-	score = 0
-	for (word,pos) in tags:
-		if pos[0:2] in ['NN', 'VB']:
-			score += analyzeBase(word)
-	return score
+	def wordSentiment(word, neg=False):
+		mod = -1 if neg else 1
+		if word in positive_words:
+			# print (mod, word, 'Pos')
+			return 10 * mod
+		if word in negative_words:
+			# print (mod, word, 'Neg')
+			return -10 * mod
+		# print(mod, word, 'Neutral')		
+		return 0
 
-def sumSentimate():
-	rss_list = os.listdir(RSS_LIST_DIR)
-	feeds = {}
-	for f in rss_list:
-		info = f.split()
-		if info[0] not in feeds:
-			feeds[info[0]] = 0
-		
-		title = open(RSS_LIST_DIR + '/' + f).read()
-		feeds[info[0]] += analyzeTitle(title)
-	
-	return feeds
+	def textSentiment(text):
+		tokens = parse(text)
+		neg = False
+		sentiment = 0
+		for t in tokens:
+			if t.pos_ not in ['VERB', 'NOUN', 'ADJ', 'ADV']:
+				continue
+			if t.pos_ in ['ADV', 'ADJ'] and t.dep_ == 'neg':
+				neg = True
+				continue
+			sentiment += Analyze.wordSentiment(t.lemma_, neg)
+			neg = False
 
-print(sumSentimate())
+		return sentiment
+
+	def fileSentiment(textfile):
+		try:
+			f = open(textfile).read()
+		except:
+			return 0
+
+		return Analyze.textSentiment(f)
+
+
+
+# doc = nlp('Ask not for whom the bell tolls, it tolls for thee.')
+# # print([(d, d.tag_, d.pos_) for d in doc])
+
+# for t in doc:
+#     print(t.orth_,t.ent_type_ if t.ent_type_ != "" else "(Not and entity)", t.dep_, t.head.orth_, [c.orth_ for c in t.lefts], [c.orth_ for c in t.rights])
+#     # print(dependency_labels_to_root(t))
+
+
+# doc2 = nlp('Beheading video follows U.S. raid')
+
+# for t in doc2:
+#     print(t.orth_,t.ent_type_ if t.ent_type_ != "" else "(Not and entity)", t.dep_, t.head.orth_, [c.orth_ for c in t.lefts], [c.orth_ for c in t.rights])
+#     # print(dependency_labels_to_root(t))
+
+
 
 

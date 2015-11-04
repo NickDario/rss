@@ -1,52 +1,51 @@
-import feedparser
+from __future__ import division
+from rss_config import negative_words, positive_words
+import pull_rss
+from analyze import Analyze
+
 import os
-import rss_config
-from datetime import datetime
-
-RSS_LIST_DIR = '/var/rss_list'
-
-feeds = {
-	'top' : 'http://rss.cnn.com/rss/cnn_topstories.rss',
-	'world': 'http://rss.cnn.com/rss/cnn_world.rss',
-	'us' : 'http://rss.cnn.com/rss/cnn_us.rss',
-	'pol' : 'http://rss.cnn.com/rss/cnn_allpolitics.rss',
-	'tech' : 'http://rss.cnn.com/rss/cnn_tech.rss',
-}
-
-FORMAT  = '%a, %d %b %Y %H:%M:%S %Z'
-
-def getLatestDate(feedname):
-	f = os.listdir(RSS_LIST_DIR)
-	if(len(f) == 0): return None
-	latest = None
-	for name in f:
-		aName = name.split('.')
-		if(len(aName) != 2): continue
-		if(aName[0] != feedname): continue
-		date = datetime.strptime(aName[1], '%Y-%m-%d_%H-%M-%S')
-		if(latest == None or date > latest):
-			latest = date
-	return latest
-
-def writeStory(feedname, item):
-	sDate = date.strftime('%Y-%m-%d_%H-%M-%S')
-	filename = feedname + '.' + sDate	
-	storyfile = open(RSS_LIST_DIR + '/' + filename, 'a+')
-	storyfile.write(item['title'])
-	storyfile.close()
-
-for source in feeds:
-	last = getLatestDate(source)
-	stories = feedparser.parse(feeds[source])
-	for i in range(0,len(stories)):
-		date = datetime.strptime(stories['items'][i]['updated'], '%a, %d %b %Y %H:%M:%S %Z')
-		if last == None or date > last:
-			writeStory(source, stories['items'][i])
-			i += 1
-		else:
-			break
+import sys
 
 
+POS_DIR = '/home/nick/repos/rss/moviedata/pos'
+NEG_DIR = '/home/nick/repos/rss/moviedata/neg'
+
+poslist = os.listdir(POS_DIR)
+neglist = os.listdir(NEG_DIR)
+
+negTrue = len(neglist)
+negGuess = 0
+for i in range(100):
+	x = Analyze.fileSentiment(NEG_DIR + '/' + neglist[i])
+	if x < 0:
+		negGuess += 1
 
 
+posTrue = len(poslist)
+posGuess = 0
+for i in range(100):
+	x = Analyze.fileSentiment(POS_DIR + '/' + poslist[i])
+	if x > 0:
+		posGuess += 1
+
+print(str(posGuess) + '/' + str(posTrue) + ' Correct on positive reviews')
+cent = posGuess/posTrue
+print(cent)
+
+print(str(negGuess) + '/'+ str(negTrue) + ' Correct on negative reviews')
+cent = negGuess/negTrue
+print(cent)
+
+
+while(1):
+	text = input('Enter sentence:\n\r')
+	text = Analyze.textSentiment(text)
+	print(text)
+
+
+# while(1):
+# 	text = input('Enter sentence:\n\r')
+# 	tokens = Analyze.textDetails(text)
+# 	print(tokens)
+	# for t in tokens:
 
