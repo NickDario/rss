@@ -35,6 +35,7 @@ class Analyze():
 			if t.pos_ in ['ADV', 'ADJ'] and t.dep_ == 'neg':
 				neg = True
 				continue
+			print(t.lemma_, neg, Analyze.wordSentiment(t.lemma_, neg))
 			sentiment += Analyze.wordSentiment(t.lemma_, neg)
 			neg = False
 
@@ -47,6 +48,7 @@ class Analyze():
 			return 0
 
 		return Analyze.textSentiment(f)
+
 
 
 
