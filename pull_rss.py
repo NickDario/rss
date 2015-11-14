@@ -9,31 +9,33 @@ import sqlite3
 
 class RSS():
 
-
 	TIME_FORMAT  = '%Y-%m-%d_%H-%M-%S'
 	db = sqlite3.connect('rss.db')
 
 
 	def saveStoryToDB(feed_id, item):
-		date = datetime.strptime(item['published'], '%a, %d %b %Y %H:%M:%S %Z')
+		stringtime = ' '.join(item.split(' ')[0:-1])
+		date = datetime.strptime(stringtime, '%a, %d %b %Y %H:%M:%S')
 		c = RSS.db.cursor()
 		sDate = date.strftime(RSS.TIME_FORMAT)
-		c.execute("INSERT INTO stories(feeds_id, date, title, content) VALUES (?,?,?,?)", (feed_id, sDate, item['title'], item['summary']))
+		c.execute("INSERT INTO stories(feeds_id, date, title, content) VALUES (SELECT (?,?,?,?)", (feed_id, sDate, item['title'], item['summary']))
 		RSS.db.commit()
 
 	def saveStoriesToDB(feed_id, items):
 		stories = []
 		for item in items:
-			date = datetime.strptime(item['published'], '%a, %d %b %Y %H:%M:%S %Z')
+			stringtime = ' '.join(item['published'].split(' ')[0:-1])
+			date = datetime.strptime(stringtime, '%a, %d %b %Y %H:%M:%S')
 			sDate = date.strftime(RSS.TIME_FORMAT)
 			stories.append((
 				feed_id,
 				sDate,
 				item['title'],
-				item['summary']	
+				item['summary'],
+				item['title'],
 			))
 		c = RSS.db.cursor()
-		c.executemany("INSERT INTO stories(feeds_id, date, title, content) VALUES (?,?,?,?)", stories)
+		c.executemany("INSERT INTO stories(feeds_id, date, title, content) SELECT ?,?,?,? WHERE NOT EXISTS(SELECT 1 FROM stories WHERE title = ?)", stories)
 		RSS.db.commit()
 
 	def pullStoriesToDB():
@@ -49,8 +51,10 @@ class RSS():
 			if(last_updated != None):
 				last_updated = datetime.strptime(last_updated, RSS.TIME_FORMAT)
 			stories = feedparser.parse(feed[3])
-			for i in range(0,len(stories)):
-				date = datetime.strptime(stories['items'][i]['published'], '%a, %d %b %Y %H:%M:%S %Z')
+			for i in range(len(stories['items'])):
+				stringtime = ' '.join(stories['items'][i]['published'].split(' ')[0:-1])
+				# date = datetime.strptime(, '%a, %d %b %Y %H:%M:%S %Z')
+				date = datetime.strptime(stringtime, '%a, %d %b %Y %H:%M:%S')
 				if last_updated == None or date > last_updated:
 					feed_stories[feed[0]].append(stories['items'][i])
 					if (feed[0] not in updated) or (date > datetime.strptime(updated[feed[0]][0], RSS.TIME_FORMAT)):

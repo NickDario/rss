@@ -1,7 +1,7 @@
 #!/bin/bash
 while [ 1 ]
 do
-	python rss.py
-	sleep 3
+	python3 rss.py
+	sleep 3600
 done
 
