@@ -50,6 +50,9 @@ class Analyze():
 		return Analyze.textSentiment(f)
 
 
+	
+
+
 
 
 # doc = nlp('Ask not for whom the bell tolls, it tolls for thee.')
