@@ -1,0 +1,65 @@
+
+P(Positive|Word) = P(Word|Positive) * P(Positive) / P(Word|Negative) + P(Word|Positive)
+
+
+200 positive:
+10 good
+7  great
+7  not
+4  bad
+
+100 Negative:
+3 good
+9 not
+9 bad
+1 great
+
+P('good'|Positive) = 0.1
+P('good'|Negative) = 0.03
+0.1 / 0.13
+
+
+P(Word|Positive) : 
+10/100 = 0.1
+
+P('good'|Positive):
+
+P(Positive|'good'):
+= (P('good'|Positive) * P(Positive)) / (P('good'|Positive) * P(Positive)) + (P('good'|Negative) * P(Negative))
+
+P('good')
+
+
+P(P|W)
+good: 10/200 = 0.05 * 0.66 = 0.025 / 0.05*0.66 + 0.03*0.34 = 0.05 / (0.025 + 0.015)
+
+((10/200) * .66) / (((10/200) * 0.66) + ((3/100) * .34))
+
+0.025/0.065 = 0.769
+
+
+great: 7/(7+1) 	= 0.875
+not:7/(7+9) 	= 0.4375
+bad:4/(4+9)		= 0.307
+
+P(Word|Negative) : 22
+good: 3/13  = 0.23
+
+great: 1/8	= 0.125
+not: 9/16	= 0.5625
+bad:9/13 	= 0.69
+
+P(Positive)
+(7+10+7+4) / (13+8+16+13)	=	0.56
+
+P(Negative)
+22 / 50		=	0.44
+
+P(good|Positive):
+(0.77 * 0.56) / (0.77 + 0.23)
+
+P(bad|Negative):
+(0.69 * 0.44)
+
+*/+
+
