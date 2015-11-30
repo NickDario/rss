@@ -26,11 +26,11 @@ n_doc = open(NEG_DIR_SENTENCES + '/rt-polarity.neg', encoding='latin-1')
 p_lines = p_doc.readlines()
 n_lines = n_doc.readlines()
 
-p_training = p_lines[:1000]
-n_training = n_lines[:1000]
+p_training = p_lines[:3000]
+n_training = n_lines[:3000]
 
-p_testing  = p_lines[2000:3000]
-n_testing  = n_lines[2000:3000]
+p_testing  = p_lines[3000:5000]
+n_testing  = n_lines[3000:5000]
 
 words = {}
 p_totalwords = 0
